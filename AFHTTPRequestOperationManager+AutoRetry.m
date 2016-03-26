@@ -141,6 +141,7 @@ SYNTHESIZE_ASC_OBJ(__retryDelayCalcBlock, setRetryDelayCalcBlock);
             void (^addRetryOperation)() = ^{
                 [self.operationQueue addOperation:retryOperation];
             };
+        
             RetryDelayCalcBlock delayCalc = self.retryDelayCalcBlock;
             int intervalToWait = delayCalc(originalRetryCount, retriesRemainingCount, intervalInSeconds);
             if (intervalToWait > 0) {
@@ -153,15 +154,18 @@ SYNTHESIZE_ASC_OBJ(__retryDelayCalcBlock, setRetryDelayCalcBlock);
                 addRetryOperation();
             }
     };
+    
     NSMutableDictionary *operationDict = self.operationsDict[request];
     if (!operationDict) {
         operationDict = [NSMutableDictionary new];
         operationDict[@"originalRetryCount"] = [NSNumber numberWithInt:retriesRemaining];
     }
     operationDict[@"retriesRemainingCount"] = [NSNumber numberWithInt:retriesRemaining];
+    
     NSMutableDictionary *newDict = [NSMutableDictionary dictionaryWithDictionary:self.operationsDict];
     newDict[request] = operationDict;
     self.operationsDict = newDict;
+    
     AFHTTPRequestOperation *operation = [self HTTPRequestOperationWithRequest:request
                                                                       success:^(AFHTTPRequestOperation *operation, id responseObj) {
                                                                           NSMutableDictionary *successOperationDict = self.operationsDict[request];
